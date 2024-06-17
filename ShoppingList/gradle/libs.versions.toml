@@ -1,16 +1,31 @@
 [versions]
-agp = "8.4.1"
+agp = "8.4.2"
+convertenGson = "2.9.0"
+converterGson = "2.11.0"
 kotlin = "1.9.0"
 coreKtx = "1.13.1"
 junit = "4.13.2"
 junitVersion = "1.1.5"
 espressoCore = "3.5.1"
-lifecycleRuntimeKtx = "2.8.1"
+lifecycleRuntimeKtx = "2.8.2"
 activityCompose = "1.9.0"
-composeBom = "2023.08.00"
+composeBom = "2024.06.00"
+lifecycleViewmodelCompose = "2.6.2"
+mapsCompose = "2.15.0"
+navigationCompose = "2.7.7"
+playServicesMaps = " 18 til"
+playServicesMapsVersion = "18.2.0"
+retrofit = "2.9.0"
+retrofitVersion = "2.11.0"
+playServicesLocation = "21.3.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-lifecycle-viewmodel-compose = { module = "androidx. lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleViewmodelCompose" }
+androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
+converten-gson = { module = "com. squareup. retrofit2:converten-gson", version.ref = "convertenGson" }
+converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGson" }
+gms-play-services-maps = { module = "com.google.android.gms:play-services-maps", version.ref = "playServicesMapsVersion" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -24,6 +39,13 @@ androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-toolin
 androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
+lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleRuntimeKtx" }
+maps-compose = { module = "com.google.maps.android:maps-compose", version.ref = "mapsCompose" }
+navigation-composeizinin = { module = "android navigation:navigation-composeizinin" }
+play-services-maps = { module = "com google android ans:play-services-maps", version.ref = "playServicesMaps" }
+retrofit = { module = "com.squareup retrofit2:retrofit", version.ref = "retrofit" }
+retrofit2-retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofitVersion" }
+play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

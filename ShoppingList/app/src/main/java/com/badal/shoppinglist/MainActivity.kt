@@ -9,7 +9,12 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.dialog
+import androidx.navigation.compose.rememberNavController
 import com.badal.shoppinglist.ui.theme.ShoppingListTheme
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -26,7 +31,7 @@ class MainActivity : ComponentActivity() {
 //                    topBar = { TopAppBar(title = { Text(text = "SHh") }) },
                 )
                 {
-                    ShoppingListApp()
+                    Navigation()
                 }
             }
         }
@@ -34,10 +39,33 @@ class MainActivity : ComponentActivity() {
 }
 
 
-@Preview(showBackground = true)
 @Composable
-fun GreetingPreview() {
-    ShoppingListTheme {
-        ShoppingListApp()
+fun Navigation() {
+    val navController = rememberNavController()
+    val viewModel: LocationViewModel = viewModel()
+    val context = LocalContext.current
+    val locationUtils = LocationUtils(context)
+
+    NavHost(navController = navController, startDestination = "shoppinglistscreen") {
+        composable("shoppinglistscreen") {
+            ShoppingListApp(
+                locationUtils,
+                viewModel,
+                navController,
+                context,
+                viewModel.address.value.firstOrNull()?.formated_address ?: "No Address"
+            )
+        }
+
+        dialog("locationscreen") { backStack ->
+            viewModel.location.value?.let { it1 ->
+                LocationSelectionScreen(location = it1, onSelection = { locationData ->
+                    viewModel.fetchAddress("${locationData.latitude},${locationData.longitude}")
+                    navController.popBackStack()
+                })
+            }
+        }
     }
+
+
 }

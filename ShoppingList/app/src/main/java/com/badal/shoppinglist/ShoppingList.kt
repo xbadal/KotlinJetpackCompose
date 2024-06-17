@@ -1,5 +1,9 @@
 package com.badal.shoppinglist
 
+import android.content.Context
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -14,6 +18,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
@@ -30,14 +35,26 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.core.app.ActivityCompat
+import androidx.navigation.NavController
 
 
 data class ShoppingItem(
-    val id: Int, var name: String, var quality: Int, var isEditing: Boolean = false
+    val id: Int,
+    var name: String,
+    var quality: Int,
+    var isEditing: Boolean = false,
+    var address: String = ""
 )
 
 @Composable
-fun ShoppingListApp() {
+fun ShoppingListApp(
+    locationUtil: LocationUtils,
+    viewModel: LocationViewModel,
+    navController: NavController,
+    context: Context,
+    address: String
+) {
 
     var sItems by remember {
         mutableStateOf(listOf<ShoppingItem>())
@@ -54,6 +71,40 @@ fun ShoppingListApp() {
     var itemQuantity by remember {
         mutableStateOf("")
     }
+
+    val requestPermissionLauncher =
+        rememberLauncherForActivityResult(contract = ActivityResultContracts.RequestMultiplePermissions(),
+            onResult = { permissions ->
+                if (permissions[android.Manifest.permission.ACCESS_FINE_LOCATION] == true && permissions[android.Manifest.permission.ACCESS_COARSE_LOCATION] == true) {
+                    // I have Location permission
+
+                    locationUtil.requestLocationUpdates(viewModel)
+
+                } else {
+                    // Ask for permission
+                    val rationaleRequired = ActivityCompat.shouldShowRequestPermissionRationale(
+                        context as MainActivity, android.Manifest.permission.ACCESS_FINE_LOCATION
+                    ) || ActivityCompat.shouldShowRequestPermissionRationale(
+                        context, android.Manifest.permission.ACCESS_COARSE_LOCATION
+                    )
+
+                    if (rationaleRequired) {
+                        Toast.makeText(
+                            context,
+                            "Location permission is required feature to work",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    } else {
+                        Toast.makeText(
+                            context,
+                            "Location permission is required, Please enable it in Android Settings",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+
+                }
+
+            })
 
     Column(
         modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center
@@ -93,6 +144,7 @@ fun ShoppingListApp() {
                             id = sItems.size + 1,
                             name = itemName,
                             quality = itemQuantity.toInt(),
+                            address = address
                         )
                         sItems = sItems + item;
                         showDialog = false
@@ -127,6 +179,27 @@ fun ShoppingListApp() {
                         .fillMaxWidth()
                         .padding(8.dp)
                 )
+
+                Button(onClick = {
+
+                    if (locationUtil.hasLocationPermission(context)) {
+                        locationUtil.requestLocationUpdates(viewModel)
+                        navController.navigate("locationscreen") {
+                            this.launchSingleTop
+                        }
+                    } else {
+                        requestPermissionLauncher.launch(
+                            arrayOf(
+                                android.Manifest.permission.ACCESS_FINE_LOCATION,
+                                android.Manifest.permission.ACCESS_COARSE_LOCATION,
+                            )
+                        )
+                    }
+
+
+                }) {
+                    Text(text = "Address")
+                }
             }
         })
     }
@@ -148,18 +221,30 @@ fun ShoppingListItem(
         horizontalArrangement = Arrangement.SpaceBetween
 
     ) {
-        Column(modifier = Modifier.padding(4.dp)) {
-            Text(text = "Name: ${item.name}")
-            Text(text = "Quantity: ${item.quality}")
+        Column(
+            modifier = Modifier
+                .padding(8.dp)
+                .weight(1f)
+        ) {
+            Row {
+                Text(text = "Name: ${item.name}")
+                Text(text = "Quantity: ${item.quality}")
+            }
+
+            Row(modifier = Modifier.fillMaxWidth()) {
+                Icon(imageVector = Icons.Default.LocationOn, contentDescription = null)
+                Text(text = item.address)
+            }
+
         }
-       Row {
-           IconButton(onClick = onEditing) {
-               Icon(imageVector = Icons.Default.Edit, contentDescription = "Edit")
-           }
-           IconButton(onClick = onDeleteClicked) {
-               Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete Item")
-           }
-       }
+        Row {
+            IconButton(onClick = onEditing) {
+                Icon(imageVector = Icons.Default.Edit, contentDescription = "Edit")
+            }
+            IconButton(onClick = onDeleteClicked) {
+                Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete Item")
+            }
+        }
 
     }
 }
